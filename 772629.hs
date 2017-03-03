@@ -10,11 +10,13 @@ type Title = String
 type Director = String
 type Year = Int
 type Fanname = String
+
 type Fans = [Fanname]
-type Filminfo = (Title, Director, Year, Fans)
-type Film = [Filminfo]
+
+type Film = (Title, Director, Year, Fans)
 
 -- "Database" containing all the films and reviews --
+
 testDatabase :: [Film]
 testDatabase = [
 				("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Sam", "Olga", "Tim"]),
@@ -43,7 +45,16 @@ testDatabase = [
 				("Star Wars: The Force Awakens", "J J Abrams", 2015, ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz", "Jo"]),
 				("Hugo", "Martin Scorsese", 2011, ["Wally", "Sam"])
 			]	
+--
+-- Core Functionality
+--
 
+getAllFilms :: [Film]
+getAllFilms = testDatabase
+
+
+
+			
 -- 
 --
 --  Your functional code goes here
