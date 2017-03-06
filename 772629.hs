@@ -2,24 +2,21 @@
 -- Haskell Task: Film Review Website --
 -- Created by: 772629 				 --
 
---
--- Types
---
+-- |#########################|
+-- |  		                 |
+-- |		  Vars			 |
+-- |					     |
+-- |#########################|
 
 type Title = String
 type Director = String
 type Year = Int
 type Fanname = String
 
-type Fans = [Fanname]
-
-type Film = (Title, Director, Year, Fans)
-
--- "Database" containing all the films and reviews --
+type Film = (Title, Director, Year, [Fanname])
 
 testDatabase :: [Film]
-testDatabase = [
-				("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Sam", "Olga", "Tim"]),
+testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Sam", "Olga", "Tim"]),
 				("The Fly", "David Cronenberg", 1986, ["Garry", "Dave", "Zoe", "Kevin", "Emma"]),
 				("Body Of Lies", "Ridley Scott", 2008, ["Bill", "Olga", "Tim", "Zoe", "Paula"]),			
 				("Avatar", "James Cameron", 2009, ["Dave", "Amy", "Liz"]),
@@ -43,10 +40,16 @@ testDatabase = [
 				("Silence", "Martin Scorsese", 2016, ["Wally", "Emma", "Tim", "Heidi", "Bill", "Olga", "Jo"]),
 				("The Terminal", "Steven Spielberg", 2004, ["Kate", "Dave", "Jo", "Wally", "Emma"]),
 				("Star Wars: The Force Awakens", "J J Abrams", 2015, ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz", "Jo"]),
-				("Hugo", "Martin Scorsese", 2011, ["Wally", "Sam"])
-			]	
+				("Hugo", "Martin Scorsese", 2011, ["Wally", "Sam"])]	
 
+-- |#########################|
+-- |  		                 |
+-- |	Core  Functionality	 |
+-- |					     |
+-- |#########################|
+		
 -- Returns all the films available in the database --
+-- @return Database of all the films --
 getAllFilms :: [Film]
 getAllFilms = testDatabase
 
@@ -56,30 +59,35 @@ getAllFilms = testDatabase
 addNewFilm :: String -> String -> Int -> [Film] -> [Film]
 addNewFilm ti di ye db = (ti, di, ye, []):db
 
-			
--- 
---
---  Your functional code goes here
---
---
 
--- Demo function to test basic functionality (without persistence - i.e. 
--- testDatabase doesn't change and nothing is saved/loaded to/from file).
+-- |#########################|
+-- |  		                 |
+-- |	Demo Functionality	 |
+-- |					     |
+-- |#########################|
 
---demo :: Int -> IO ()
---demo 1  = putStrLn all films after adding 2017 film "Alien: Covenant"
---                   by "Ridley Scott" to testDatabase
---demo 2  = putStrLn (filmsAsString testDatabase)
---demo 3  = putStrLn all films released after 2008
---demo 4  = putStrLn all films that "Liz" is a fan of
---demo 5  = putStrLn all fans of "Jaws"
---demo 6  = putStrLn all films after "Liz" says she becomes fan of "The Fly"
---demo 66 = putStrLn all films after "Liz" says she becomes fan of "Avatar"
---demo 7 =  putStrLn all fans of films directed by "James Cameron"
---demo 8  = putStrLn all directors & no. of their films that "Liz" is a fan of
+demo :: Int -> IO ()
+-- All films after adding "Alien: Covenant" by "Ridley Scott" 2017
+demo 1 = putStrLn "Function WIP"
+-- Returning filmsAsString testDatabase
+demo 2 = putStrLn "Function WIP"
+-- All films that were released after 2008
+demo 3 = putStrLn "Function WIP"
+-- All films that "Liz" is a fan of
+demo 4 = putStrLn "Function WIP"
+-- All fans of the movie "Jaws"
+demo 5 = putStrLn "Function WIP"
+-- All films after "Liz" says she becomes fan of "The Fly"
+demo 6 = putStrLn "Function WIP"
+-- All films after "Liz" says she becomes fan of "Avatar"
+demo 66 = putStrLn "Function WIP"
+-- All fans of films directed by "James Cameron"
+demo 7 = putStrLn "Function WIP"
+-- All directors & no. of their films that "Liz" is a fan of
+demo 8 = putStrLn "Function WIP"
 
---
---
--- Your user interface code goes here
---
---
+-- |#########################|
+-- |  		                 |
+-- | Interface Functionality |
+-- |					     |
+-- |#########################|
