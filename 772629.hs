@@ -48,17 +48,34 @@ testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "K
 -- |					     |
 -- |#########################|
 		
--- Returns all the films available in the database --
--- @return Database of all the films --
+-- Returns all the films available in the database
+-- @return:	Database of all the films
 getAllFilms :: [Film]
 getAllFilms = testDatabase
 
--- Adds a new film to the database --
--- @param: Title, Director, Year & Database --
--- @return: Database --
+-- Adds a new film to the database
+-- @param: 	Title, Director, Year & Database
+-- @return: Database
 addNewFilm :: String -> String -> Int -> [Film] -> [Film]
 addNewFilm ti di ye db = (ti, di, ye, []):db
 
+-- Returns all films as a formatted string
+-- @param: 	Film Database
+-- @return: Formatted string of databases
+filmsAsString :: [Film] -> String
+filmsAsString db = "WIP"
+
+-- Returns all films released after the year (Not Including)
+-- @param: 	Year
+-- @return:	Films after the year
+--filmsReleasedAfterYear :: Int -> [Film]
+--filmsReleasedAfterYear yr = "WIP"
+
+-- Returns all films that a user is a fan of
+-- @param: 	Fan Name
+-- @return:	All films that contain fan name
+--fanFilms :: String -> [Film]
+--fanFilms user = "WIP"
 
 -- |#########################|
 -- |  		                 |
