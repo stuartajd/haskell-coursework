@@ -45,14 +45,16 @@ testDatabase = [
 				("Star Wars: The Force Awakens", "J J Abrams", 2015, ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz", "Jo"]),
 				("Hugo", "Martin Scorsese", 2011, ["Wally", "Sam"])
 			]	
---
--- Core Functionality
---
 
+-- Returns all the films available in the database --
 getAllFilms :: [Film]
 getAllFilms = testDatabase
 
-
+-- Adds a new film to the database --
+-- @param: Title, Director, Year & Database --
+-- @return: Database --
+addNewFilm :: String -> String -> Int -> [Film] -> [Film]
+addNewFilm ti di ye db = (ti, di, ye, []):db
 
 			
 -- 
