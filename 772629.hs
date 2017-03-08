@@ -68,8 +68,8 @@ filmsAsString db = "WIP"
 -- Returns all films released after the year (Not Including)
 -- @param: 	Year
 -- @return:	Films after the year
---filmsReleasedAfterYear :: Int -> [Film]
---filmsReleasedAfterYear yr = "WIP"
+filmsReleasedAfterYear :: Int -> [Film]
+filmsReleasedAfterYear year = [ (ti, di, yr, fan) | (ti, di, yr, fan) <- testDatabase, yr > year ]
 
 -- Returns all films that a user is a fan of
 -- @param: 	Fan Name
