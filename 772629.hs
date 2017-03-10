@@ -13,7 +13,8 @@ type Director = String
 type Year = Int
 type Fanname = String
 
-type Film = (Title, Director, Year, [Fanname])
+type Fans = [Fanname]
+type Film = (Title, Director, Year, Fans)
 
 testDatabase :: [Film]
 testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Sam", "Olga", "Tim"]),
@@ -63,7 +64,8 @@ addNewFilm ti di ye db = (ti, di, ye, []):db
 -- @param: 	Film Database
 -- @return: Formatted string of databases
 filmsAsString :: [Film] -> String
-filmsAsString db = "WIP"
+filmsAsString [] = ""
+filmsAsString ((ti, di, yr, fa):xs) = "Title: " ++ ti ++ " | Director: " ++ di  ++ " | Year: " ++ show ( yr ) ++ " | Fans: " ++ show( length ( fa ) ) ++ "\n" ++ filmsAsString xs
 
 -- Returns all films released after the year (Not Including)
 -- @param: 	Year
@@ -74,8 +76,22 @@ filmsReleasedAfterYear year = [ (ti, di, yr, fan) | (ti, di, yr, fan) <- testDat
 -- Returns all films that a user is a fan of
 -- @param: 	Fan Name
 -- @return:	All films that contain fan name
---fanFilms :: String -> [Film]
---fanFilms user = "WIP"
+fanFilms :: String -> [Film]
+fanFilms user = [(ti, di, yr, fan) | (ti, di, yr, fan) <- testDatabase, elem user fan ]
+
+-- Returns all fans of a particular film
+-- @param: 	Film Name
+-- @return:	All fans of a particular film
+fansOfFilm :: String -> [Fans]
+fansOfFilm film = [ fan | (ti, di, yr, fan) <- testDatabase, film == ti ]
+
+-- Returns a film once a user has become a fan
+-- @param: Film Name, User
+-- @return: Films
+userFanOfFilm :: String -> String -> [Film]
+userFanOfFilm film user = [if elem user fan == False then (ti, di, yr, fan ++ [user] ) else (ti, di, yr, fan) | (ti, di, yr, fan) <- testDatabase, ti == film]
+
+
 
 -- |#########################|
 -- |  		                 |
@@ -85,21 +101,29 @@ filmsReleasedAfterYear year = [ (ti, di, yr, fan) | (ti, di, yr, fan) <- testDat
 
 demo :: Int -> IO ()
 -- All films after adding "Alien: Covenant" by "Ridley Scott" 2017
-demo 1 = putStrLn "Function WIP"
+demo 1 = putStrLn( filmsAsString( addNewFilm "Alien: Covenant" "Ridley Scott" 2017 testDatabase ) )
+
 -- Returning filmsAsString testDatabase
-demo 2 = putStrLn "Function WIP"
+demo 2 = putStrLn( filmsAsString testDatabase )
+
 -- All films that were released after 2008
-demo 3 = putStrLn "Function WIP"
+demo 3 = putStrLn( filmsAsString( filmsReleasedAfterYear 2008 ) )
+
 -- All films that "Liz" is a fan of
-demo 4 = putStrLn "Function WIP"
+demo 4 = putStrLn( filmsAsString( fanFilms "Liz" ) )
+
 -- All fans of the movie "Jaws"
-demo 5 = putStrLn "Function WIP"
+demo 5 = putStrLn( show ( fansOfFilm "Jaws" ) )
+
 -- All films after "Liz" says she becomes fan of "The Fly"
-demo 6 = putStrLn "Function WIP"
+demo 6 = putStrLn( filmsAsString ( userFanOfFilm "The Fly" "Liz" ) )
+
 -- All films after "Liz" says she becomes fan of "Avatar"
-demo 66 = putStrLn "Function WIP"
+demo 66 = putStrLn( filmsAsString ( userFanOfFilm "Avatar" "Liz" ) )
+
 -- All fans of films directed by "James Cameron"
 demo 7 = putStrLn "Function WIP"
+
 -- All directors & no. of their films that "Liz" is a fan of
 demo 8 = putStrLn "Function WIP"
 
