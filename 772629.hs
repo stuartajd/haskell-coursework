@@ -1,6 +1,10 @@
+---------------------------------------
 -- Functional Programming Coursework --
 -- Haskell Task: Film Review Website --
 -- Created by: 772629 				 --
+---------------------------------------
+
+import Data.List
 
 -- |#########################|
 -- |  		                 |
@@ -16,6 +20,8 @@ type Fanname = String
 type Fans = [Fanname]
 type Film = (Title, Director, Year, Fans)
 
+
+-- testDatabase used for all demo functional code (Does not change)
 testDatabase :: [Film]
 testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Sam", "Olga", "Tim"]),
 				("The Fly", "David Cronenberg", 1986, ["Garry", "Dave", "Zoe", "Kevin", "Emma"]),
@@ -50,47 +56,53 @@ testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "K
 -- |#########################|
 		
 -- Returns all the films available in the database
--- @return:	Database of all the films
 getAllFilms :: [Film]
 getAllFilms = testDatabase
 
 -- Adds a new film to the database
--- @param: 	Title, Director, Year & Database
--- @return: Database
 addNewFilm :: String -> String -> Int -> [Film] -> [Film]
 addNewFilm ti di ye db = (ti, di, ye, []):db
 
 -- Returns all films as a formatted string
--- @param: 	Film Database
--- @return: Formatted string of databases
 filmsAsString :: [Film] -> String
 filmsAsString [] = ""
-filmsAsString ((ti, di, yr, fa):xs) = "Title: " ++ ti ++ " | Director: " ++ di  ++ " | Year: " ++ show ( yr ) ++ " | Fans: " ++ show( length ( fa ) ) ++ "\n" ++ filmsAsString xs
+filmsAsString ((ti, di, yr, fa):xs) = "| " ++ ti ++ " \n| Director: " ++ di  ++ " \n| Year: " ++ show ( yr ) ++ " \n| Fans: " ++ show( length ( fa ) ) ++ "\n\n" ++ filmsAsString xs
+
+-- Converts all fans to a formatted string
+fansAsString :: [Fans] -> String
+fansAsString fan = " | Fan Name: " ++ intercalate "\n | Fan Name: " (head fan)
 
 -- Returns all films released after the year (Not Including)
--- @param: 	Year
--- @return:	Films after the year
 filmsReleasedAfterYear :: Int -> [Film]
 filmsReleasedAfterYear year = [ (ti, di, yr, fan) | (ti, di, yr, fan) <- testDatabase, yr > year ]
 
 -- Returns all films that a user is a fan of
--- @param: 	Fan Name
--- @return:	All films that contain fan name
 fanFilms :: String -> [Film]
 fanFilms user = [(ti, di, yr, fan) | (ti, di, yr, fan) <- testDatabase, elem user fan ]
 
 -- Returns all fans of a particular film
--- @param: 	Film Name
--- @return:	All fans of a particular film
 fansOfFilm :: String -> [Fans]
 fansOfFilm film = [ fan | (ti, di, yr, fan) <- testDatabase, film == ti ]
 
--- Returns a film once a user has become a fan
--- @param: Film Name, User
--- @return: Films
-userFanOfFilm :: String -> String -> [Film]
-userFanOfFilm film user = [if elem user fan == False then (ti, di, yr, fan ++ [user] ) else (ti, di, yr, fan) | (ti, di, yr, fan) <- testDatabase, ti == film]
+-- Returns all film once a user has become a fan
+addFan :: String -> String -> [Film] -> [Film]
+addFan title name ((ti, di, yr, fa):xs)
+	| length xs == 0 = []
+	| title == ti && elem name fa == False = (ti, di, yr, name : fa) : addFan title name xs 
+	| otherwise		= (ti, di, yr, fa) : addFan title name xs
 
+-- Fans of all films directed by a particular directors
+fansOfDirector :: String -> [Film] -> [Fans]
+fansOfDirector director ((ti, di, yr, fa):xs)
+	| length xs == 0 = []
+	| director == di = fa : fansOfDirector director xs
+	| otherwise		 = fansOfDirector director xs	 
+
+-- Checks if user is a fan of a specific film
+checkIfFan :: String -> [Film] -> Bool
+checkIfFan user [(ti, di, yr, fa)] = elem user fa
+	
+-- Gets all the directors with number of films that have a particular fan by name
 
 
 -- |#########################|
@@ -113,16 +125,16 @@ demo 3 = putStrLn( filmsAsString( filmsReleasedAfterYear 2008 ) )
 demo 4 = putStrLn( filmsAsString( fanFilms "Liz" ) )
 
 -- All fans of the movie "Jaws"
-demo 5 = putStrLn( show ( fansOfFilm "Jaws" ) )
+demo 5 = putStrLn( fansAsString ( fansOfFilm "Jaws" ) )
 
 -- All films after "Liz" says she becomes fan of "The Fly"
-demo 6 = putStrLn( filmsAsString ( userFanOfFilm "The Fly" "Liz" ) )
+demo 6 = putStrLn( filmsAsString ( addFan "The Fly" "Liz" testDatabase ) )
 
 -- All films after "Liz" says she becomes fan of "Avatar"
-demo 66 = putStrLn( filmsAsString ( userFanOfFilm "Avatar" "Liz" ) )
+demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
 
 -- All fans of films directed by "James Cameron"
-demo 7 = putStrLn "Function WIP"
+demo 7 = putStrLn( fansAsString ( fansOfDirector "James Cameron" testDatabase ) )
 
 -- All directors & no. of their films that "Liz" is a fan of
 demo 8 = putStrLn "Function WIP"
