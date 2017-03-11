@@ -1,8 +1,8 @@
----------------------------------------
--- Functional Programming Coursework --
--- Haskell Task: Film Review Website --
--- Created by: 772629 				 --
----------------------------------------
+-- ||
+-- || Discrete Mathematics and Functional Programming
+-- || Haskell Coursework: Film Review
+-- || Student Number: 772629
+-- ||
 
 import Data.List
 
