@@ -32,7 +32,7 @@ getAllFilms = testDatabase
 
 -- Adds a new film to the database
 addNewFilm :: String -> String -> Int -> [Film] -> [Film]
-addNewFilm ti di ye db = (ti, di, ye, []):db
+addNewFilm ti di ye db = db++[(ti, di, ye, [])]
 
 -- Returns all films as a formatted string
 filmsAsString :: [Film] -> String
@@ -124,20 +124,21 @@ demo 8 = putStrLn( filmsByAllDirectorsWithFan "Liz" testDatabase )
 
 main :: IO ()
 main = do 
-	putStrLn ("")
-	putStrLn (" Film Database")
-	putStrLn (" Loading database file")
-	putStrLn ("")
+	putStrLn("========================================================")
+	putStrLn("Film Database")
 	loadedFile <- readFile "test-data.txt"
 	let filmsDatabase = read loadedFile
-	putStrLn ("Please input your name: ")
+	putStrLn("Successfully Loaded Database")
+	putStrLn("========================================================")
+	putStr("Please input your name: ")
 	name <- getLine
-	putStrLn ("")
+	putStrLn ("\n")
 	inMainMenu name filmsDatabase		
 		
 inMainMenu :: String -> [Film] -> IO()
 inMainMenu user filmDB = do 
-	putStrLn("Welcome to the Film Database, please enter the number for the action you wish to perform.\n")
+	putStrLn("========================================================")
+	putStrLn("Welcome to the Film Database, " ++ user ++".\nEnter the number for the required option.\n")
 	putStrLn(" 1 | Add a film")
 	putStrLn(" 2 | Display all films")
 	putStrLn(" 3 | Display films released after a certain date")
@@ -146,9 +147,11 @@ inMainMenu user filmDB = do
 	putStrLn(" 6 | Set yourself as a fan of a film")
 	putStrLn(" 7 | Check all fans of a particular director")
 	putStrLn(" 8 | Get all directors that you're a fan of with count")
-	putStrLn(" 0 | Save and Exit\n")
+	putStrLn(" 0 | Save and Exit")
+	putStrLn("========================================================\n")
 	putStr("Please insert your option: ")
 	option <- getLine
+	putStrLn("\n")
 	inAction option user filmDB
 		
 inAction :: String -> String -> [Film] -> IO ()
@@ -172,24 +175,28 @@ inErrorMessage user filmDB error =
 inSaveAndExit :: String -> [Film] -> IO()
 inSaveAndExit user filmDB =
 	do
-		putStrLn(" Saving the Database")
+		putStrLn("========================================================")
+		putStrLn("Saving the Database")
 		length filmDB `seq` writeFile "test-data.txt" ( show filmDB )
-		putStrLn(" Saved the Database successfully")
+		putStrLn("Saved the Database successfully")
 		putStrLn("Exiting the system")
+		putStrLn("========================================================\n")
 		
 inAddNewFilm :: String -> [Film] -> IO()
 inAddNewFilm user filmDB = 
 	do 
-		putStrLn(" Add new film to database\n\n")
-		putStrLn(" Enter the film title: ")
+		putStrLn("========================================================")
+		putStrLn("Add new film to database\n")
+		putStr("Enter the film title: ")
 		filmTitl <- getLine
-		putStrLn(" Enter the film director: ")
+		putStr("Enter the film director: ")
 		filmDire <- getLine
-		putStrLn(" Enter the film release date: ")
+		putStr("Enter the film release date: ")
 		filmYear <- getLine
-		putStrLn(" Adding your film to the database")
-		let filmDB = addNewFilm filmTitl filmDire (read filmYear :: Int) filmDB
-		inMainMenu user filmDB
+		putStr("Adding your film to the database")
+		let filmDBnew = addNewFilm filmTitl filmDire (read filmYear :: Int) filmDB
+		putStrLn("========================================================\n")
+		inMainMenu user filmDBnew
 
 
 
