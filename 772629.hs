@@ -10,6 +10,7 @@
 -- ||
 
 import Data.List
+import Data.String
 
 -- Film Type Defines
 type Title = String
@@ -42,7 +43,7 @@ filmsAsString ((ti, di, yr, fa):xs) = "\nTitle: " ++ ti ++ "\nDirector: " ++ di 
 -- Converts all fans to a formatted string
 fansAsString :: [Fans] -> String
 fansAsString [] = ""
-fansAsString (x:xs) = "Fan Name: " ++ intercalate text x ++ fansAsString xs
+fansAsString (x:xs) = "\nFan Name: " ++ intercalate text x ++ fansAsString xs
 				where text = "\nFan Name: "
 
 -- Returns all films released after the year (Not Including)
@@ -115,6 +116,7 @@ demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
 demo 7 = putStrLn( fansAsString ( fansOfDirector "James Cameron" testDatabase ) )
 -- All directors & no. of their films that "Liz" is a fan of
 demo 8 = putStrLn( filmsByAllDirectorsWithFan "Liz" testDatabase )
+demo _ = putStrLn "Invalid Demo Requested"
 
 
 
