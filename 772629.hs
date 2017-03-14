@@ -80,7 +80,7 @@ filmsByDirectorWithFan :: String -> String -> [Film] -> Int
 filmsByDirectorWithFan fan direc ((ti, di, yr, fa):xs)
 	| length xs == 0 = 0
 	| direc == di && checkIfFan fan [(ti, di, yr, fa)] = 1 + filmsByDirectorWithFan fan direc xs
-	| otherwise	= filmsByDirectorWithFan fan direc xs	
+	| otherwise	= filmsByDirectorWithFan fan direc xs
 	
 -- Gets all the directors with number of films that have a particular fan by name
 filmsByAllDirectorsWithFan :: String -> [Film] -> String
@@ -99,7 +99,7 @@ filmsByAllDirectorsWithFan fan ((ti, di, yr, fa):xs)
 demo :: Int -> IO ()
 -- All films after adding "Alien: Covenant" by "Ridley Scott" 2017
 demo 1 = putStrLn( filmsAsString( addNewFilm "Alien: Covenant" "Ridley Scott" 2017 testDatabase ) )
--- Returning filmsAsString testDatabase
+-- Returning all films in a formatted way
 demo 2 = putStrLn( filmsAsString testDatabase )
 -- All films that were released after 2008
 demo 3 = putStrLn( filmsAsString( filmsReleasedAfterYear 2008 testDatabase ) )
@@ -167,8 +167,53 @@ inAction "3" user filmDB = inGetAllFilmsAfter user filmDB
 inAction "4" user filmDB = inGetFanFilms user filmDB
 -- Get all the fans of a particular film
 inAction "5" user filmDB = inGetFansOfFilm user filmDB
+-- Assign a fan to a particular film
+inAction "6" user filmDB = inAddFan user filmDB
+-- All fans of films directed by a particular director
+inAction "7" user filmDB = inFansOfDirector user filmDB
+-- All directors & no. of their films that a particular fan is is a fan of
+inAction "8" user filmDB = inFilmsByAllDirectors user filmDB
 -- Display errors if the input is invalid!
 inAction _ user filmDB = inErrorMessage user filmDB "Incorrect Option Selected"
+
+inFansOfDirector :: String -> [Film] -> IO()
+inFansOfDirector user filmDB =
+	do
+		putStrLn("========================================================")
+		putStrLn("View all the fans of a particular director.")
+		putStr("Director Name: ")
+		director <- getLine
+		putStrLn("\nAll fans of director "++ director ++"\n")
+		putStrLn( fansAsString ( fansOfDirector director filmDB ) )
+		putStrLn("========================================================\n")
+		inMainMenu user filmDB
+
+inFilmsByAllDirectors :: String -> [Film] -> IO()
+inFilmsByAllDirectors user filmDB =
+	do
+		putStrLn("========================================================")
+		putStrLn("View all directors with number of a fan is liking their films.")
+		putStr("Fan Name: ")
+		fan <- getLine
+		putStrLn("\nCount of times for "++ fan  ++"\n")
+		putStrLn( filmsByAllDirectorsWithFan fan filmDB )
+		putStrLn("========================================================\n")
+		inMainMenu user filmDB
+
+inAddFan :: String -> [Film] -> IO()
+inAddFan user filmDB =
+	do
+		putStrLn("========================================================")
+		putStrLn("Add a particular user as a fan for a film.")
+		putStr("Film Name: ")
+		film <- getLine
+		putStr("Fan Name: ")
+		fan <- getLine
+		putStrLn("\nAdded "++ fan ++" to the fan list for "++ film ++"\n")
+		let filmDBnew = addFan film fan filmDB
+		putStrLn( filmsAsString filmDBnew )
+		putStrLn("========================================================\n")
+		inMainMenu user filmDBnew
 
 inGetFansOfFilm :: String -> [Film] -> IO()
 inGetFansOfFilm user filmDB =
