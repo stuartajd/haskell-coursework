@@ -37,13 +37,13 @@ addNewFilm ti di ye db = db++[(ti, di, ye, [])]
 -- Returns all films as a formatted string
 filmsAsString :: [Film] -> String
 filmsAsString [] = ""
-filmsAsString ((ti, di, yr, fa):xs) = "| " ++ ti ++ " \n| Director: " ++ di  ++ " \n| Year: " ++ show ( yr ) ++ " \n| Fans: " ++ show( length ( fa ) ) ++ "\n\n" ++ filmsAsString xs
+filmsAsString ((ti, di, yr, fa):xs) = "\nTitle: " ++ ti ++ "\nDirector: " ++ di  ++ "\nYear: " ++ show ( yr ) ++ "\nFan Total: " ++ show( length ( fa ) ) ++ "\n" ++ filmsAsString xs
 
 -- Converts all fans to a formatted string
 fansAsString :: [Fans] -> String
 fansAsString [] = ""
-fansAsString (x:xs) = text ++ intercalate text x ++ "\n" ++ fansAsString xs
-				where text = "\n | Fan Name: "
+fansAsString (x:xs) = "Fan Name: " ++ intercalate text x ++ fansAsString xs
+				where text = "\nFan Name: "
 
 -- Returns all films released after the year (Not Including)
 filmsReleasedAfterYear :: Int -> [Film] -> [Film]
@@ -129,11 +129,11 @@ main = do
 	loadedFile <- readFile "test-data.txt"
 	let filmsDatabase = read loadedFile
 	putStrLn("Successfully Loaded Database")
-	putStrLn("========================================================")
+	putStrLn("========================================================\n")
 	putStr("Please input your name: ")
 	name <- getLine
 	putStrLn ("\n")
-	inMainMenu name filmsDatabase		
+	inMainMenu name filmsDatabase
 		
 inMainMenu :: String -> [Film] -> IO()
 inMainMenu user filmDB = do 
@@ -142,9 +142,9 @@ inMainMenu user filmDB = do
 	putStrLn(" 1 | Add a film")
 	putStrLn(" 2 | Display all films")
 	putStrLn(" 3 | Display films released after a certain date")
-	putStrLn(" 4 | Get all films you're a fan of")
+	putStrLn(" 4 | Get all films with a particular fan")
 	putStrLn(" 5 | Get all the fans of a particular film")
-	putStrLn(" 6 | Set yourself as a fan of a film")
+	putStrLn(" 6 | Assign a fan to a particular film")
 	putStrLn(" 7 | Check all fans of a particular director")
 	putStrLn(" 8 | Get all directors that you're a fan of with count")
 	putStrLn(" 0 | Save and Exit")
@@ -155,15 +155,61 @@ inMainMenu user filmDB = do
 	inAction option user filmDB
 		
 inAction :: String -> String -> [Film] -> IO ()
+-- Save the database and exit the UI
 inAction "0" user filmDB = inSaveAndExit user filmDB
+-- Add a new film to the database
 inAction "1" user filmDB = inAddNewFilm user filmDB
+-- Display all the films within the database
 inAction "2" user filmDB = inGetAllFilms user filmDB
+-- Get all the films that were released after a certain date
+inAction "3" user filmDB = inGetAllFilmsAfter user filmDB
+-- Get all the films with a particular fan
+inAction "4" user filmDB = inGetFanFilms user filmDB
+-- Get all the fans of a particular film
+inAction "5" user filmDB = inGetFansOfFilm user filmDB
+-- Display errors if the input is invalid!
 inAction _ user filmDB = inErrorMessage user filmDB "Incorrect Option Selected"
+
+inGetFansOfFilm :: String -> [Film] -> IO()
+inGetFansOfFilm user filmDB =
+	do
+		putStrLn("========================================================")
+		putStrLn("View all the fans of a particular film.")
+		putStr("Film Name: ")
+		film <- getLine
+		putStrLn("\nAll fans of a particular film "++ film ++"\n")
+		putStrLn( fansAsString ( fansOfFilm film filmDB ) )
+		putStrLn("========================================================\n")
+		inMainMenu user filmDB
+
+inGetFanFilms :: String -> [Film] -> IO()
+inGetFanFilms user filmDB =
+	do
+		putStrLn("========================================================")
+		putStrLn("View all the films with a particular fan.")
+		putStr("Fan Name: ")
+		fan <- getLine
+		putStrLn("\nAll films with "++ fan ++" as a fan\n")
+		putStrLn( filmsAsString( fanFilms fan filmDB ) )
+		putStrLn("========================================================\n")
+		inMainMenu user filmDB
 
 inGetAllFilms :: String -> [Film] -> IO()
 inGetAllFilms user filmDB =
 	do
 		putStrLn( filmsAsString filmDB )
+		inMainMenu user filmDB
+		
+inGetAllFilmsAfter :: String -> [Film] -> IO()
+inGetAllFilmsAfter user filmDB =
+	do
+		putStrLn("========================================================")
+		putStrLn("View all films released after a certain date.")
+		putStr("Which year: ")
+		year <- getLine
+		putStrLn("All films released after "++ year)
+		putStrLn(filmsAsString( filmsReleasedAfterYear (read year :: Int) filmDB ))
+		putStrLn("========================================================\n")
 		inMainMenu user filmDB
 			
 inErrorMessage :: String -> [Film] -> String -> IO()
@@ -193,7 +239,7 @@ inAddNewFilm user filmDB =
 		filmDire <- getLine
 		putStr("Enter the film release date: ")
 		filmYear <- getLine
-		putStr("Adding your film to the database")
+		putStrLn("Adding your film to the database")
 		let filmDBnew = addNewFilm filmTitl filmDire (read filmYear :: Int) filmDB
 		putStrLn("========================================================\n")
 		inMainMenu user filmDBnew
