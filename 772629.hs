@@ -60,9 +60,12 @@ fansOfFilm film db = [ fan | (ti, di, yr, fan) <- db, film == ti ]
 
 -- Returns all film once a user has become a fan
 addFan :: String -> String -> [Film] -> [Film]
-addFan title name ((ti, di, yr, fa):xs)
-	| length xs == 0 = []
+addFan title name db = [ if ti == title then (ti, di, yr, fa++[name]) else (ti, di, yr, fa) | (ti, di, yr, fa) <- db ]
+
+addFans :: String -> String -> [Film] -> [Film]
+addFans title name ((ti, di, yr, fa):xs)
 	| title == ti && elem name fa == False = (ti, di, yr, name : fa) : addFan title name xs 
+	| length xs == 0 = []
 	| otherwise		= (ti, di, yr, fa) : addFan title name xs
 
 -- Fans of all films directed by a particular directors
@@ -90,34 +93,6 @@ filmsByAllDirectorsWithFan fan ((ti, di, yr, fa):xs)
 	| length xs > 0 = text ++ di ++ " - " ++ show(filmsByDirectorWithFan fan di ((ti, di, yr, fa):xs)) ++ filmsByAllDirectorsWithFan fan xs
 	| otherwise = filmsByAllDirectorsWithFan fan xs
 		where text = "\n | Director: "
-
-		
-
--- ||
--- || Demo Functionality
--- ||
-
-demo :: Int -> IO ()
--- All films after adding "Alien: Covenant" by "Ridley Scott" 2017
-demo 1 = putStrLn( filmsAsString( addNewFilm "Alien: Covenant" "Ridley Scott" 2017 testDatabase ) )
--- Returning all films in a formatted way
-demo 2 = putStrLn( filmsAsString testDatabase )
--- All films that were released after 2008
-demo 3 = putStrLn( filmsAsString( filmsReleasedAfterYear 2008 testDatabase ) )
--- All films that "Liz" is a fan of
-demo 4 = putStrLn( filmsAsString( fanFilms "Liz" testDatabase ) )
--- All fans of the movie "Jaws"
-demo 5 = putStrLn( fansAsString ( fansOfFilm "Jaws" testDatabase ) )
--- All films after "Liz" says she becomes fan of "The Fly"
-demo 6 = putStrLn( filmsAsString ( addFan "The Fly" "Liz" testDatabase ) )
--- All films after "Liz" says she becomes fan of "Avatar"
-demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
--- All fans of films directed by "James Cameron"
-demo 7 = putStrLn( fansAsString ( fansOfDirector "James Cameron" testDatabase ) )
--- All directors & no. of their films that "Liz" is a fan of
-demo 8 = putStrLn( filmsByAllDirectorsWithFan "Liz" testDatabase )
-demo _ = putStrLn "Invalid Demo Requested"
-
 
 
 -- ||
@@ -291,6 +266,30 @@ inAddNewFilm user filmDB =
 		putStrLn("========================================================\n")
 		inMainMenu user filmDBnew
 
+-- ||
+-- || Demo Functionality
+-- ||
+
+demo :: Int -> IO ()
+-- All films after adding "Alien: Covenant" by "Ridley Scott" 2017
+demo 1 = putStrLn( filmsAsString( addNewFilm "Alien: Covenant" "Ridley Scott" 2017 testDatabase ) )
+-- Returning all films in a formatted way
+demo 2 = putStrLn( filmsAsString testDatabase )
+-- All films that were released after 2008
+demo 3 = putStrLn( filmsAsString( filmsReleasedAfterYear 2008 testDatabase ) )
+-- All films that "Liz" is a fan of
+demo 4 = putStrLn( filmsAsString( fanFilms "Liz" testDatabase ) )
+-- All fans of the movie "Jaws"
+demo 5 = putStrLn( fansAsString ( fansOfFilm "Jaws" testDatabase ) )
+-- All films after "Liz" says she becomes fan of "The Fly"
+demo 6 = putStrLn( filmsAsString ( addFan "The Fly" "Liz" testDatabase ) )
+-- All films after "Liz" says she becomes fan of "Avatar"
+demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
+-- All fans of films directed by "James Cameron"
+demo 7 = putStrLn( fansAsString ( fansOfDirector "James Cameron" testDatabase ) )
+-- All directors & no. of their films that "Liz" is a fan of
+demo 8 = putStrLn( filmsByAllDirectorsWithFan "Liz" testDatabase )
+demo _ = putStrLn "Invalid Demo Requested"
 
 
 -- ||
