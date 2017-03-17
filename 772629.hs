@@ -60,13 +60,7 @@ fansOfFilm film db = [ fan | (ti, di, yr, fan) <- db, film == ti ]
 
 -- Returns all film once a user has become a fan
 addFan :: String -> String -> [Film] -> [Film]
-addFan title name db = [ if ti == title then (ti, di, yr, fa++[name]) else (ti, di, yr, fa) | (ti, di, yr, fa) <- db ]
-
-addFans :: String -> String -> [Film] -> [Film]
-addFans title name ((ti, di, yr, fa):xs)
-	| title == ti && elem name fa == False = (ti, di, yr, name : fa) : addFan title name xs 
-	| length xs == 0 = []
-	| otherwise		= (ti, di, yr, fa) : addFan title name xs
+addFan title name db = [ if ti == title && elem name fa == False then (ti, di, yr, fa++[name]) else (ti, di, yr, fa) | (ti, di, yr, fa) <- db ]
 
 -- Fans of all films directed by a particular directors
 fansOfDirector :: String -> [Film] -> [Fans]
@@ -75,26 +69,49 @@ fansOfDirector director ((ti, di, yr, fa):xs)
 	| director == di = fa : fansOfDirector director xs
 	| otherwise		 = fansOfDirector director xs	 
 
+-- Returns a list of fans without their duplicates
+--getAllFansWithoutRepeats :: [Film] -> [Fanname]
+--getAllFansWithoutRepeats db = nub(concat (getAllFans db))
+	
+-- Returns a list of all the directors within a database 
+--getAllFans :: [Film] -> [Fans]
+--getAllFans ((ti, di, yr, fa):xs)
+--	| length xs > 0 = fa:getAllFans xs
+--	| otherwise = []
+	
 -- Checks if user is a fan of a specific film
 checkIfFan :: String -> [Film] -> Bool
 checkIfFan user [(ti, di, yr, fa)] = elem user fa
 	
 -- Gets the count of number of films by a director that a specific fan is fan of
-filmsByDirectorWithFan :: String -> String -> [Film] -> Int
-filmsByDirectorWithFan fan direc ((ti, di, yr, fa):xs)
-	| length xs == 0 = 0
-	| direc == di && checkIfFan fan [(ti, di, yr, fa)] = 1 + filmsByDirectorWithFan fan direc xs
-	| otherwise	= filmsByDirectorWithFan fan direc xs
+getCountFilmsByDirWithFan :: String -> Director -> [Film] -> Int
+getCountFilmsByDirWithFan fan director ((ti, di, yr, fa):xs)
+	| director == di && checkIfFan fan [(ti, di, yr, fa)] = 1 + getCountFilmsByDirWithFan fan di xs
+	| length xs > 0 = getCountFilmsByDirWithFan fan director xs
+	| otherwise = 0
 	
--- Gets all the directors with number of films that have a particular fan by name
-filmsByAllDirectorsWithFan :: String -> [Film] -> String
-filmsByAllDirectorsWithFan _ [] = ""
-filmsByAllDirectorsWithFan fan ((ti, di, yr, fa):xs)
-	| length xs > 0 = text ++ di ++ " - " ++ show(filmsByDirectorWithFan fan di ((ti, di, yr, fa):xs)) ++ filmsByAllDirectorsWithFan fan xs
-	| otherwise = filmsByAllDirectorsWithFan fan xs
-		where text = "\n | Director: "
+-- Returns a list of directors without their duplicates
+getAllDirectorsWithoutRepeats :: [Film] -> [Director]
+getAllDirectorsWithoutRepeats db = nub(getAllDirectors db)
+	
+-- Returns a list of all the directors within a database 
+getAllDirectors :: [Film] -> [Director]
+getAllDirectors ((ti, di, yr, fa):xs)
+	| length xs > 0 = [di] ++ getAllDirectors xs
+	| otherwise = []
+	
+-- Returns a list of tuples with director & count of times a user is a fan 
+directorsWithFanCounter :: String -> [Film] -> [(Director, Int)]
+directorsWithFanCounter fan db = [ (dir, (getCountFilmsByDirWithFan fan dir db)) | dir <- getAllDirectorsWithoutRepeats(db) ]
 
-
+-- Returns a formatted list of the tuples of director and count of times a user is a fan
+directorsWithFanToString :: [(Director, Int)] -> String
+directorsWithFanToString ((dir, cou):xs)
+	| length xs > 0 = "Director: " ++ dir ++ " - Count: "++ show(cou) ++ "\n" ++ directorsWithFanToString xs
+	| length xs == 0 = "Director: " ++ dir ++ " - Count: "++ show(cou)
+	| otherwise = ""
+		
+		
 -- ||
 -- || Interface Functionality
 -- ||
@@ -115,7 +132,7 @@ main = do
 inMainMenu :: String -> [Film] -> IO()
 inMainMenu user filmDB = do 
 	putStrLn("========================================================")
-	putStrLn("Welcome to the Film Database, " ++ user ++".\nEnter the number for the required option.\n")
+	putStrLn("Welcome to the Film Database, " ++ user ++".\nEnter the number for the required option.")
 	putStrLn(" 1 | Add a film")
 	putStrLn(" 2 | Display all films")
 	putStrLn(" 3 | Display films released after a certain date")
@@ -173,7 +190,7 @@ inFilmsByAllDirectors user filmDB =
 		putStr("Fan Name: ")
 		fan <- getLine
 		putStrLn("\nCount of times for "++ fan  ++"\n")
-		putStrLn( filmsByAllDirectorsWithFan fan filmDB )
+		putStrLn(  directorsWithFanToString( directorsWithFanCounter fan filmDB )) 
 		putStrLn("========================================================\n")
 		inMainMenu user filmDB
 
@@ -285,10 +302,11 @@ demo 5 = putStrLn( fansAsString ( fansOfFilm "Jaws" testDatabase ) )
 demo 6 = putStrLn( filmsAsString ( addFan "The Fly" "Liz" testDatabase ) )
 -- All films after "Liz" says she becomes fan of "Avatar"
 demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
--- All fans of films directed by "James Cameron"
+-- All fans of films directed by "James Cameron" (Without Duplicates)
 demo 7 = putStrLn( fansAsString ( fansOfDirector "James Cameron" testDatabase ) )
--- All directors & no. of their films that "Liz" is a fan of
-demo 8 = putStrLn( filmsByAllDirectorsWithFan "Liz" testDatabase )
+-- All directors & no. of their films that "Liz" is a fan of (Without Duplicates)
+demo 8 = putStrLn( directorsWithFanToString( directorsWithFanCounter "Liz" testDatabase ))
+
 demo _ = putStrLn "Invalid Demo Requested"
 
 
