@@ -40,12 +40,17 @@ filmsAsString :: [Film] -> String
 filmsAsString [] = ""
 filmsAsString ((ti, di, yr, fa):xs) = "\nTitle: " ++ ti ++ "\nDirector: " ++ di  ++ "\nYear: " ++ show ( yr ) ++ "\nFan Total: " ++ show( length ( fa ) ) ++ "\n" ++ filmsAsString xs
 
--- Converts all fans to a formatted string
+-- Converts all fans to a formatted string (different data type [Fans])
 fansAsString :: [Fans] -> String
 fansAsString [] = ""
-fansAsString (x:xs) = "\nFan Name: " ++ intercalate text x ++ fansAsString xs
-				where text = "\nFan Name: "
-
+fansAsString (x:xs) = "Fan Name: " ++ intercalate "" x ++ "\n" ++ fansAsString xs
+	
+-- Converts all fans to a formatted string (different data type [Fanname])
+fanNameAsString :: [Fanname] -> String
+fanNameAsString [] = ""
+fanNameAsString (x:xs) = "\nFan Name: " ++ intercalate "" [x] ++ fanNameAsString xs
+				
+				
 -- Returns all films released after the year (Not Including)
 filmsReleasedAfterYear :: Int -> [Film] -> [Film]
 filmsReleasedAfterYear year db = [ (ti, di, yr, fan) | (ti, di, yr, fan) <- db, yr > year ]
@@ -70,15 +75,9 @@ fansOfDirector director ((ti, di, yr, fa):xs)
 	| otherwise		 = fansOfDirector director xs	 
 
 -- Returns a list of fans without their duplicates
---getAllFansWithoutRepeats :: [Film] -> [Fanname]
---getAllFansWithoutRepeats db = nub(concat (getAllFans db))
-	
--- Returns a list of all the directors within a database 
---getAllFans :: [Film] -> [Fans]
---getAllFans ((ti, di, yr, fa):xs)
---	| length xs > 0 = fa:getAllFans xs
---	| otherwise = []
-	
+fansOfDirectorNoRepeats:: String -> [Film] -> [Fanname]
+fansOfDirectorNoRepeats director db = nub(concat (fansOfDirector director db))
+
 -- Checks if user is a fan of a specific film
 checkIfFan :: String -> [Film] -> Bool
 checkIfFan user [(ti, di, yr, fa)] = elem user fa
@@ -178,7 +177,7 @@ inFansOfDirector user filmDB =
 		putStr("Director Name: ")
 		director <- getLine
 		putStrLn("\nAll fans of director "++ director ++"\n")
-		putStrLn( fansAsString ( fansOfDirector director filmDB ) )
+		putStrLn( fanNameAsString ( fansOfDirectorNoRepeats director filmDB ) )
 		putStrLn("========================================================\n")
 		inMainMenu user filmDB
 
@@ -303,9 +302,9 @@ demo 6 = putStrLn( filmsAsString ( addFan "The Fly" "Liz" testDatabase ) )
 -- All films after "Liz" says she becomes fan of "Avatar"
 demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
 -- All fans of films directed by "James Cameron" (Without Duplicates)
-demo 7 = putStrLn( fansAsString ( fansOfDirector "James Cameron" testDatabase ) )
+demo 7 = putStrLn( fanNameAsString ( fansOfDirectorNoRepeats "James Cameron" testDatabase ))
 -- All directors & no. of their films that "Liz" is a fan of (Without Duplicates)
-demo 8 = putStrLn( directorsWithFanToString( directorsWithFanCounter "Liz" testDatabase ))
+demo 8 = putStrLn( directorsWithFanToString( directorsWithFanCounter "Liz" testDatabase  ))
 
 demo _ = putStrLn "Invalid Demo Requested"
 
