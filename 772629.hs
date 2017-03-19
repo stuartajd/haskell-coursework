@@ -11,6 +11,7 @@
 
 import Data.List
 import Data.String
+import Data.Maybe
 
 -- Film Type Defines
 type Title = String
@@ -20,7 +21,6 @@ type Fanname = String
 
 type Fans = [Fanname]
 type Film = (Title, Director, Year, Fans)
-
 
 	
 -- ||
@@ -115,6 +115,7 @@ directorsWithFanToString ((dir, cou):xs)
 -- || Interface Functionality
 -- ||
 
+-- Main Functionality
 main :: IO ()
 main = do 
 	putStrLn("========================================================")
@@ -127,7 +128,14 @@ main = do
 	name <- getLine
 	putStrLn ("\n")
 	inMainMenu name filmsDatabase
-		
+
+inSendErrorInput :: String -> String
+inSendErrorInput "int" = "[Error]: The value entered was not the expected value (Number / Int)\n[Error]: Option is being reset, please try again."
+inSendErrorInput "string" = "[Error]: The value entered was not the expected value (Word / String)\n[Error]: Option is being reset, please try again."
+inSendErrorInput _ = ""
+
+	
+-- Main Menu Options
 inMainMenu :: String -> [Film] -> IO()
 inMainMenu user filmDB = do 
 	putStrLn("========================================================")
@@ -147,6 +155,7 @@ inMainMenu user filmDB = do
 	putStrLn("\n")
 	inAction option user filmDB
 		
+-- Actions for the system
 inAction :: String -> String -> [Film] -> IO ()
 -- Save the database and exit the UI
 inAction "0" user filmDB = inSaveAndExit user filmDB
@@ -176,10 +185,16 @@ inFansOfDirector user filmDB =
 		putStrLn("View all the fans of a particular director.")
 		putStr("Director Name: ")
 		director <- getLine
-		putStrLn("\nAll fans of director "++ director ++"\n")
-		putStrLn( fanNameAsString ( fansOfDirectorNoRepeats director filmDB ) )
-		putStrLn("========================================================\n")
-		inMainMenu user filmDB
+		
+		if director == ""
+		then do
+			putStrLn( inSendErrorInput "string" )
+			inFansOfDirector user filmDB 
+		else do
+			putStrLn("\nAll fans of director "++ director ++"\n")
+			putStrLn( fanNameAsString ( fansOfDirectorNoRepeats director filmDB ) )
+			putStrLn("========================================================\n")
+			inMainMenu user filmDB
 
 inFilmsByAllDirectors :: String -> [Film] -> IO()
 inFilmsByAllDirectors user filmDB =
