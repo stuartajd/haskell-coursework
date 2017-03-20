@@ -145,9 +145,9 @@ inMainMenu user filmDB = do
  putStrLn(" 1 | Add a film")
  putStrLn(" 2 | Display all films")
  putStrLn(" 3 | Display films released after a certain date")
- putStrLn(" 4 | Get all films with a particular fan")
+ putStrLn(" 4 | Get all films with you're a fan of")
  putStrLn(" 5 | Get all the fans of a particular film")
- putStrLn(" 6 | Assign a fan to a particular film")
+ putStrLn(" 6 | Assign yourself as a fan to a particular film")
  putStrLn(" 7 | Check all fans of a particular director")
  putStrLn(" 8 | Get all directors that you're a fan of with count")
  putStrLn(" 0 | Save and Exit")
@@ -199,10 +199,8 @@ inFilmsByAllDirectors user filmDB =
  do
   putStrLn("========================================================")
   putStrLn("View all directors with number of a fan is liking their films.")
-  putStr("Fan Name: ")
-  fan <- getLine
-  putStrLn("\nCount of times for "++ fan  ++"\n")
-  putStrLn(  directorsWithFanToString( directorsWithFanCounter fan filmDB )) 
+  putStrLn("\nCount of times for "++ user  ++"\n")
+  putStrLn(  directorsWithFanToString( directorsWithFanCounter user filmDB )) 
   putStrLn("========================================================\n")
   inMainMenu user filmDB
 
@@ -214,10 +212,8 @@ inAddFan user filmDB =
   putStrLn("Add a particular user as a fan for a film.")
   putStr("Film Name: ")
   film <- getLine
-  putStr("Fan Name: ")
-  fan <- getLine
-  putStrLn("\nAdded "++ fan ++" to the fan list for "++ film ++"\n")
-  let filmDBnew = addFan film fan filmDB
+  putStrLn("\nAdded "++ user ++" to the fan list for "++ film ++"\n")
+  let filmDBnew = addFan film user filmDB
   putStrLn( filmsAsString filmDBnew )
   putStrLn("========================================================\n")
   inMainMenu user filmDBnew
@@ -241,10 +237,8 @@ inGetFanFilms user filmDB =
  do
   putStrLn("========================================================")
   putStrLn("View all the films with a particular fan.")
-  putStr("Fan Name: ")
-  fan <- getLine
-  putStrLn("\nAll films with "++ fan ++" as a fan\n")
-  putStrLn( filmsAsString( fanFilms fan filmDB ) )
+  putStrLn("\nAll films with "++ user ++" as a fan\n")
+  putStrLn( filmsAsString( fanFilms user filmDB ) )
   putStrLn("========================================================\n")
   inMainMenu user filmDB
 
