@@ -10,6 +10,7 @@
 -- ||
 
 import Data.List
+import Data.Char
 
 -- Film Type Defines
 type Title = String
@@ -120,6 +121,12 @@ checkDirectorExists dir ((ti, di, yr, fa):xs)
  | xs == [] = False
  | otherwise = checkDirectorExists dir xs
 
+-- Removes all symbols / non letters from a string
+removeSymbols :: String -> String
+removeSymbols = filter isLetter
+
+
+
  
 -- ||
 -- || Interface Functionality
@@ -138,12 +145,14 @@ main = do
  name <- getLine
  putStrLn ("\n")
  inMainMenu name filmsDatabase
+ 
 
 -- Returns an error message for incorrect input
 inSendErrorInput :: String -> String
 inSendErrorInput "int" = "\n[Error]: The value entered was not the expected value (Number / Int)\n[Error]: Option is being reset, please try again.\n"
 inSendErrorInput "string" = "\n[Error]: The value entered was not the expected value (Word / String)\n[Error]: Option is being reset, please try again.\n"
 inSendErrorInput "input" = "\n[Error]: There was no input given!\n[Error]: Option is being reset, please try again.\n"
+inSendErrorInput "year" = "\n[Error]: The year is not valid, enter a value after year 1900 - 2100.!\n[Error]: Option is being reset, please try again.\n"
 inSendErrorInput "option" = "\n[Error]: An incorrect action was given, please try again!\n"
 inSendErrorInput _ = ""
 
@@ -189,9 +198,9 @@ inAction "7" user filmDB = inFansOfDirector user filmDB
 inAction "8" user filmDB = inFilmsByAllDirectors user filmDB
 -- Display errors if the input is invalid!
 inAction _ user filmDB = do
-	putStrLn (inSendErrorInput "option" )
-	inMainMenu user filmDB
-	
+ putStrLn (inSendErrorInput "option" )
+ inMainMenu user filmDB
+ 
 -- UI Function to save and exit the UI
 inSaveAndExit :: String -> [Film] -> IO()
 inSaveAndExit user filmDB =
@@ -207,185 +216,206 @@ inSaveAndExit user filmDB =
 -- UI function to add a new film to the database
 inAddNewFilm :: String -> [Film] -> IO()
 inAddNewFilm user filmDB = 
-	do 
-		putStrLn("========================================================")
-		putStrLn("Add new film to database\n")
-		
-		putStr("Enter the film title: ")
-		filmTitl <- getLine
-		
-		putStr("Enter the film director: ")
-		filmDire <- getLine
-		
-		putStr("Enter the film release date: ")
-		filmYear <- getLine
+ do 
+  putStrLn("========================================================")
+  putStrLn("Add new film to database\n")
+  
+  putStr("Enter the film title: ")
+  filmTitl <- getLine
+  let filmTitle = removeSymbols filmTitl
+  
+  putStr("Enter the film director: ")
+  filmDire <- getLine
+  let filmDirector = removeSymbols filmDire
+  
+  putStr("Enter the film release date: ")
+  filmYear <- getLine
 
-		if filmTitl == "" || filmDire == "" || filmYear == ""
-		then do
-			putStrLn(inSendErrorInput "input")
-			inAddNewFilm user filmDB
-		else do
-			-- To validate the films; reads the filmYear input, converts to an Integer & String, if the film exists with nothing inside the String, it's a valid input / number! otherwise just catch and display an error.
-			case reads filmYear :: [(Integer, String)] of
-				[(n, "")] -> do
-					putStrLn("Adding your film to the database")
-					let filmDBnew = addNewFilm filmTitl filmDire (read filmYear :: Int) filmDB
-					putStrLn("========================================================\n")
-					inMainMenu user filmDBnew
-				_ -> do
-					putStrLn( inSendErrorInput "int" )
-					inAddNewFilm user filmDB
+  if filmTitle == "" && filmDirector == "" && filmYear == ""
+  then do
+   putStrLn ("Returning you to the main menu")
+   inMainMenu user filmDB
+  else do
+   if filmTitle == "" || filmDirector == "" || filmYear == ""
+   then do
+    putStrLn(inSendErrorInput "input")
+    inAddNewFilm user filmDB
+   else do
+    -- To validate the films; reads the filmYear input, converts to an Integer & String, if the film exists with nothing inside the String, it's a valid input / number! otherwise just catch and display an error.
+    case reads filmYear :: [(Integer, String)] of
+     [(n, "")] -> do
+      let year = (read filmYear :: Int)
+      if year >= 1990 && year <= 2100
+      then do
+       putStrLn("Adding your film to the database")
+       let filmDBnew = addNewFilm filmTitle filmDirector year filmDB
+       putStrLn("========================================================\n")
+       inMainMenu user filmDBnew
+      else do
+       putStrLn(inSendErrorInput "year")
+       inAddNewFilm user filmDB
+       
+     _ -> do
+      putStrLn( inSendErrorInput "int" )
+      inAddNewFilm user filmDB
   
 -- UI Function to return all the films as a string
 inGetAllFilms :: String -> [Film] -> IO()
 inGetAllFilms user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("View all the films within the database")
-		putStrLn( filmsAsString filmDB )
-		putStrLn("========================================================\n")
-		inMainMenu user filmDB
+ do
+  putStrLn("========================================================")
+  putStrLn("View all the films within the database")
+  putStrLn( filmsAsString filmDB )
+  putStrLn("========================================================\n")
+  inMainMenu user filmDB
 
 -- UI Functions to get all the films released after a certain date
 inGetAllFilmsAfter :: String -> [Film] -> IO()
 inGetAllFilmsAfter user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("View all films released after a certain date.")
-		putStr("Which year: ")
-		year <- getLine
-		putStrLn("\n")
-		if year == ""
-		then do
-			putStrLn(inSendErrorInput "input")
-			inGetAllFilmsAfter user filmDB
-		else do
-			case reads year :: [(Integer, String)] of
-				[(n, "")] -> do
-					putStrLn("All films released after "++ year)
-					let result = filmsReleasedAfterYear (read year :: Int) filmDB 
-					
-					if result /= []
-					then do
-						putStrLn(filmsAsString( result ))
-					else do
-						putStrLn("There are no films released after "++ year)
-					
-					putStrLn("========================================================\n")
-					inMainMenu user filmDB
-				_ -> do
-					putStrLn(inSendErrorInput "int")
-					inGetAllFilmsAfter user filmDB
-				
+ do
+  putStrLn("========================================================")
+  putStrLn("View all films released after a certain date.")
+  putStr("Which year: ")
+  year <- getLine
+  putStrLn("\n")
+  if year == ""
+  then do
+   putStrLn(inSendErrorInput "input")
+   inGetAllFilmsAfter user filmDB
+  else do
+   case reads year :: [(Integer, String)] of
+    [(n, "")] -> do
+     let filmYear = (read year :: Int)
+     if filmYear >= 1990 && filmYear <= 2100
+     then do
+      putStrLn("All films released after "++ show( filmYear ))
+      let result = filmsReleasedAfterYear filmYear filmDB 
+     
+      if result /= []
+      then do
+       putStrLn(filmsAsString( result ))
+      else do
+       putStrLn("There are no films released after "++ show( filmYear ) ++ "\n")
+       
+      putStrLn("========================================================\n")
+      inMainMenu user filmDB
+     else do
+      putStrLn(inSendErrorInput "year")
+      inGetAllFilmsAfter user filmDB
+     
+    _ -> do
+     putStrLn(inSendErrorInput "int")
+     inGetAllFilmsAfter user filmDB
+    
 -- UI Function to return all the fans of a specific film
 inGetFanFilms :: String -> [Film] -> IO()
 inGetFanFilms user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("View all the films with a particular fan.")
-		putStrLn("\nAll films with "++ user ++" as a fan\n")
+ do
+  putStrLn("========================================================")
+  putStrLn("View all the films with a particular fan.")
+  putStrLn("\nAll films with "++ user ++" as a fan\n")
   
-		let result = fanFilms user filmDB
+  let result = fanFilms user filmDB
   
-		if result /= []
-		then do
-			putStrLn( filmsAsString( fanFilms user filmDB ) )
-		else do
-			putStrLn("There are no films with "++ user ++" as a fan!")
-	
-		putStrLn("========================================================\n")
-		inMainMenu user filmDB
+  if result /= []
+  then do
+   putStrLn( filmsAsString( fanFilms user filmDB ) )
+  else do
+   putStrLn("There are no films with "++ user ++" as a fan!\n")
+ 
+  putStrLn("========================================================\n")
+  inMainMenu user filmDB
 
 -- UI Function for returning all the fans of a specific film
 inGetFansOfFilm :: String -> [Film] -> IO()
 inGetFansOfFilm user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("View all the fans of a particular film.")
-		putStr("Film Name: ")
-		film <- getLine
+ do
+  putStrLn("========================================================")
+  putStrLn("View all the fans of a particular film.")
+  putStr("Film Name: ")
+  film <- getLine
   
-		if film == ""
-		then do
-			putStrLn(inSendErrorInput "input")
-			inGetFansOfFilm user filmDB
-		else do
-			if checkFilmExists film filmDB == False
-			then do
-				putStrLn("The film "++ film ++" doesn't exist in the database")
-			else do
-				putStrLn("\nAll fans of a particular film "++ film ++"\n")
-				putStrLn( fansAsString ( fansOfFilm film filmDB ) )
-		putStrLn("========================================================\n")
-		inMainMenu user filmDB
+  if film == ""
+  then do
+   putStrLn(inSendErrorInput "input")
+   inGetFansOfFilm user filmDB
+  else do
+   if checkFilmExists film filmDB == False
+   then do
+    putStrLn("[Error] The film "++ film ++" doesn't exist in the database")
+   else do
+    putStrLn("\nAll fans of a particular film "++ film ++"\n")
+    putStrLn( fansAsString ( fansOfFilm film filmDB ) )
+  putStrLn("========================================================\n")
+  inMainMenu user filmDB
   
 -- UI Function for add a user as a fan to a specific film
 inAddFan :: String -> [Film] -> IO()
 inAddFan user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("Add a particular user as a fan for a film.")
-		putStr("Film Name: ")
-		film <- getLine
+ do
+  putStrLn("========================================================")
+  putStrLn("Add a particular user as a fan for a film.")
+  putStr("Film Name: ")
+  film <- getLine
   
-		if film == ""
-		then do
-			putStrLn(inSendErrorInput "input")
-			inAddFan user filmDB
-		else do
-			if checkFilmExists film filmDB == False
-			then do
-				putStrLn("The film "++ film ++" doesn't exist, did you mean something else?")
-				putStrLn("========================================================\n")
-				inMainMenu user filmDB
-			else do
-				let filmDBnew = addFan film user filmDB
-				putStrLn("\nAdded "++ user ++" to the fan list for "++ film ++"\n")
-				putStrLn( filmsAsString filmDBnew )
-				putStrLn("========================================================\n")
-				inMainMenu user filmDBnew 
+  if film == ""
+  then do
+   putStrLn(inSendErrorInput "input")
+   inAddFan user filmDB
+  else do
+   if checkFilmExists film filmDB == False
+   then do
+    putStrLn("[Error] The film "++ film ++" doesn't exist, did you mean something else?")
+    putStrLn("========================================================\n")
+    inMainMenu user filmDB
+   else do
+    let filmDBnew = addFan film user filmDB
+    putStrLn("\nAdded "++ user ++" to the fan list for "++ film ++"\n")
+    putStrLn( filmsAsString filmDBnew )
+    putStrLn("========================================================\n")
+    inMainMenu user filmDBnew 
   
 -- UI Function for returning the fans of a director
 inFansOfDirector :: String -> [Film] -> IO()
 inFansOfDirector user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("View all the fans of a particular director.")
-		putStr("Director Name: ")
-		director <- getLine
+ do
+  putStrLn("========================================================")
+  putStrLn("View all the fans of a particular director.")
+  putStr("Director Name: ")
+  director <- getLine
   
-		if director == ""
-		then do
-			putStrLn(inSendErrorInput "input")
-			inFansOfDirector user filmDB
-		else do
-			if checkDirectorExists director filmDB == False
-			then do
-				putStrLn("The director does not exist in our database!")
-			else do
-				putStrLn("\nAll fans of director "++ director ++"\n")
-				putStrLn( fanNameAsString ( fansOfDirectorNoRepeats director filmDB ) )
-			
-			putStrLn("========================================================\n")
-			inMainMenu user filmDB
+  if director == ""
+  then do
+   putStrLn(inSendErrorInput "input")
+   inFansOfDirector user filmDB
+  else do
+   if checkDirectorExists director filmDB == False
+   then do
+    putStrLn("[Error] The director does not exist in our database!")
+   else do
+    putStrLn("\nAll fans of director "++ director ++"\n")
+    putStrLn( fanNameAsString ( fansOfDirectorNoRepeats director filmDB ) )
+   
+   putStrLn("========================================================\n")
+   inMainMenu user filmDB
    
 -- UI Function for returning the directors with the total fans that like their films
 inFilmsByAllDirectors :: String -> [Film] -> IO()
 inFilmsByAllDirectors user filmDB =
-	do
-		putStrLn("========================================================")
-		putStrLn("View all directors with number of a fan is liking their films.")
-		putStrLn("\nCount of times for "++ user  ++"\n")
-		putStrLn(  directorsWithFanToString( directorsWithFanCounter user filmDB )) 
-		putStrLn("========================================================\n")
-		inMainMenu user filmDB
+ do
+  putStrLn("========================================================")
+  putStrLn("View all directors with number of a fan is liking their films.")
+  putStrLn("\nCount of times for "++ user  ++"\n")
+  putStrLn(  directorsWithFanToString( directorsWithFanCounter user filmDB )) 
+  putStrLn("========================================================\n")
+  inMainMenu user filmDB
   
 -- UI functions to return a custom error message before returning to the main menu
 inErrorMessage :: String -> [Film] -> String -> IO()
 inErrorMessage user filmDB error =
-	do
-		putStrLn(error)
-		inMainMenu user filmDB
+ do
+  putStrLn(error)
+  inMainMenu user filmDB
 
 
 
@@ -412,7 +442,7 @@ demo 66 = putStrLn( filmsAsString ( addFan "Avatar" "Liz" testDatabase ) )
 demo 7 = putStrLn( fanNameAsString ( fansOfDirectorNoRepeats "James Cameron" testDatabase ))
 -- All directors & no. of their films that "Liz" is a fan of (Without Duplicates)
 demo 8 = putStrLn( directorsWithFanToString( directorsWithFanCounter "Liz" testDatabase  ))
-
+-- Catch any incorrect entries for the demo
 demo _ = putStrLn "Invalid Demo Requested"
 
 
